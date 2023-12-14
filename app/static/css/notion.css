@@ -1,0 +1,14 @@
+body {
+    padding: 20px 40px;
+    margin: 0;
+}
+
+.back_button {
+    position: fixed;
+
+    width: 64px;
+    height: 64px;
+
+    bottom: 32px;
+    right: 32px;
+}

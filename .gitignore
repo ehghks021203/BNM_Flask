@@ -1,0 +1,13 @@
+__pycache__/
+SSL/
+
+/assistant.py
+/backend_no_jwt.py
+/backend.py
+/backend2.py
+/chatbot_langchain.py
+/chatbot.py
+/config.py
+/l_assistant.py
+/nohup.out
+/API_GUIDE.md

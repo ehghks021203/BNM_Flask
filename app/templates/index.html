@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content=""IE=edge" />
+        <title>공지사항 목록</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+    </head>
+    <body>
+        <div class="warp">
+            <div class="list_warp">
+                <div class="list">
+                    {% for i in pin_items %}
+                        <button type="button" class="notion_button" onclick="location.href='https://csgpu.kku.ac.kr:5050/notion?locate=pin&name={{i.title}}'">
+                            <div class="notion_number">
+                                ★
+                            </div>
+                            <div class="notion_title">
+                                <span class="notion_title_text">{{ i.title }}</span>
+                                <span class="notion_date_text">{{ i.date }}</span>   
+                            </div>
+                        </button>
+                    {% endfor %}
+                    {% for i in common_items %}
+                        <button type="button" class="notion_button" onclick="location.href='https://csgpu.kku.ac.kr:5050/notion?name={{i.title}}'">
+                            <div class="notion_number">
+                                {{ loop.index }}
+                            </div>
+                            <div class="notion_title">
+                                <span class="notion_title_text">{{ i.title }}</span>
+                                <span class="notion_date_text">{{ i.date }}</span>   
+                            </div>
+                        </button>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </body>
+    
+
+</html>
