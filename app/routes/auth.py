@@ -26,7 +26,7 @@ def login():
         user_type `str`:
             로그인 한 유저의 타입 (user 또는 main_nok)
     """
-    # 데이터 형식이 JSON이 아닐 때
+    # Error: 데이터 형식이 JSON이 아님
     if not request.is_json:
         return jsonify({
             "result": "error", 
@@ -34,7 +34,7 @@ def login():
             "err_code":10
         }), 400
     
-    # 파라미터 값이 비어있거나 없을 때
+    # Error: 파라미터 값이 비어있거나 없음
     required_fields = ["user_id", "user_pw"]
     for field in required_fields:
         if field not in request.json or not request.json[field]:
@@ -59,6 +59,7 @@ def login():
                 "err_code": 0, 
                 "user_type": "user"
             }), 200
+        # Error: 비밀번호 불일치
         else:
             return jsonify({
                 "result": "error", 
@@ -76,6 +77,7 @@ def login():
                     "err_code":0, 
                     "user_type": "main_nok"
                 }), 200
+            # Error: 비밀번호 불일치
             else:
                 return jsonify({
                     "result": "error",
@@ -83,6 +85,7 @@ def login():
                     "err_code":22, 
                     "user_type": "main_nok"
                 }), 401
+    # Error: 사용자가 존재하지 않음
     return jsonify({
         "result": "error", 
         "msg": "user does not exist", 
@@ -115,7 +118,7 @@ def nok_register():
         msg `str`:
             응답 메시지
     """
-    # 데이터 형식이 JSON이 아닐 때
+    # Error: 데이터 형식이 JSON이 아님
     if not request.is_json:
         return jsonify({
             "result": "error", 
@@ -123,7 +126,7 @@ def nok_register():
             "err_code":10
         }), 400
     
-    # 파라미터 값이 비어있거나 없을 때
+    # Error: 파라미터 값이 비어있거나 없음
     required_fields = ["nok_id", "nok_pw", "name", "birthday", "gender", "address", "tell"]
     for field in required_fields:
         if field not in request.json or not request.json[field]:
@@ -143,7 +146,7 @@ def nok_register():
     nok_relation = request.json["relation"]
     nok_tell = request.json["tell"]
 
-    # 아이디 중복체크
+    # Error: 이미 존재하는 아이디
     if MainNok.query.filter_by(nok_id=nok_id).count() > 0:
         return jsonify({
             "result": "error", 
@@ -165,6 +168,7 @@ def nok_register():
             "msg":"main nok register",
             "err_code":0
         }), 200
+    # Error: SQL Commit 에러
     except Exception as e:
         print(f"Error during commit: {e}")
         db.session.rollback()
@@ -172,10 +176,7 @@ def nok_register():
             "result": "error", 
             "msg": "Error during commit",
             "err_code":100
-        }), 500
-
-
-    
+        }), 500    
 
 @auth_routes.route("/user_register", methods=["POST"])
 def user_register():
@@ -209,7 +210,7 @@ def user_register():
         msg `str`:
             응답 메시지
     """
-    # 데이터 형식이 JSON이 아닐 때
+    # Error: 데이터 형식이 JSON이 아님
     if not request.is_json:
         return jsonify({
             "result": "error", 
@@ -217,7 +218,7 @@ def user_register():
             "err_code":10
         }), 400
     
-    # 파라미터 값이 비어있거나 없을 때
+    # Error: 파라미터 값이 비어있거나 없음
     required_fields = ["nok_id", "user_id", "user_pw", "name", "birthday", "gender", 
                        "relation", "address", "blood_type", "chronic_illness"]
     for field in required_fields:
@@ -242,8 +243,9 @@ def user_register():
     user_blood_type = request.json["blood_type"]
     user_chronic_illness = request.json["chronic_illness"].encode('utf-8') if request.json["chronic_illness"] else None
 
-    # 주 보호자 아이디 체크
     main_nok = MainNok.query.filter_by(nok_id=nok_id).first()
+
+    # Error: 주 보호자 아이디가 존재하지 않음
     if not main_nok:
         return jsonify({
             "result": "error", 
@@ -253,7 +255,7 @@ def user_register():
     nid = main_nok.id
     print(nid)
 
-    # 아이디 중복체크
+    # Error: 이미 존재하는 아이디
     if User.query.filter_by(user_id=user_id).count() > 0:
         return jsonify({
             "result": "error", 
@@ -276,6 +278,7 @@ def user_register():
             "msg":"user register",
             "err_code":0
         }), 200
+    # Error: SQL Commit 에러
     except Exception as e:
         print(f"Error during commit: {e}")
         db.session.rollback()

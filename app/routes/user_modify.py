@@ -32,7 +32,7 @@ def user_delete():
         return jsonify({
             "result": "error", 
             "msg": "missing json in request",
-            "err_code":10
+            "err_code": 10
         }), 400
     
     # 사용자 데이터 받아오기
@@ -43,23 +43,33 @@ def user_delete():
     if not nok_id and not user_id:
         return jsonify({
             "result": "error", 
-            "msg": f"missing nok_id or user_id parameter",
-            "err_code":11
+            "msg": "missing nok_id or user_id parameter",
+            "err_code": 11
         }), 400
 
     # 주 보호자에 대한 회원 탈퇴일 경우
     if nok_id:
         main_nok = MainNok.query.filter_by(nok_id=nok_id).first()
+        # Error: 주 보호자가 존재하지 않음
         if not main_nok:
-            return jsonify({"result": "error", "msg": f"{nok_id} id does not exist"}), 401
+            return jsonify({
+                "result": "error", 
+                "msg": f"{nok_id} id does not exist",
+                "err_code": 20
+            }), 401
         nid = main_nok.id
         # 주 보호자와 연결된 사용자 리스트 생성
         user_list = User.query.filter_by(main_nok_id=nid).all()
     # 일반 사용자에 대한 회원 탈퇴일 경우
     elif user_id:
         user = User.query._filter_by(user_id=user_id).first()
+        # Error: 사용자가 존재하지 않음
         if not user:
-            return jsonify({"result": "error", "msg": f"{user_id} id does not exist"}), 401
+            return jsonify({
+                "result": "error", 
+                "msg": f"{user_id} id does not exist",
+                "err_code": 20
+            }), 401
         user_list = [user]
 
     # 주어진 조건에 맞는 유저 제거 (주 보호자 탈퇴 시 주 보호자와 연결되어있는 사용자 모두 제거)
@@ -100,78 +110,21 @@ def user_delete():
         if nok_id:
             db.session.delete(main_nok)
             db.session.commit()
-        return jsonify({"result": "success", "msg": "user deleted"}), 200
-    # SQL에 데이터 제거 중 예외 발생
+        return jsonify({
+            "result": "success", 
+            "msg": "user deleted",
+            "err_code": 0
+        }), 200
+    # Error: SQL Commit 에러
     except Exception as e:
-        print(f"Error during delete: {e}")
+        print(f"Error during commit: {e}")
         db.session.rollback()
-        return jsonify({"result": "error", "msg": "Error during delete"}), 500
-    # DB 연결
-    cur = mysql.connection.cursor()
-
-    # 주 보호자에 대한 회원 탈퇴일떄
-    if nok_id:
-        # 주 보호자의 고유 id 받아오기
-        sql = "SELECT id FROM main_nok WHERE nok_id='{}'".format(nok_id)
-        cur.execute(sql)
-        sql_res = cur.fetchone()
-        if not sql_res:
-            cur.close()
-            return jsonify({"result":"error","msg":"main_nok does not exist"}), 401
-        nid = sql_res["id"]
-        
-        # 주 보호자와 연결된 사용자 리스트 생성
-        sql = "SELECT id FROM user WHERE main_nok_id=%s"
-        cur.execute(sql, (nid,))
-        user_list = cur.fetchall()
+        return jsonify({
+            "result": "error", 
+            "msg": "Error during commit",
+            "err_code": 100
+        }), 500
     
-    # 일반 사용자에 대한 회원 탈퇴일때
-    if not nok_id:
-        user_id = request.json.get("user_id")
-        if user_id:
-            # DB 연결
-            cur = mysql.connection.cursor()
-
-            # 사용자의 고유 id 받아오기
-            sql = "SELECT id FROM user WHERE user_id='{}'".format(user_id)
-            cur.execute(sql)
-            user_list = cur.fetchall()
-            if len(user_list) == 0:
-                cur.close()
-                return jsonify({"result":"error","msg":"user does not exist"}), 401
-
-    # 유저 제거 (주 보호자 탈퇴 시 주 보호자와 연결되어있는 사용자 모두 제거)
-    for user in user_list:
-        sql = "DELETE FROM chat_log WHERE user_id=%s"
-        cur.execute(sql, (user["id"],))
-        sql = "DELETE FROM memory_test_result WHERE user_id=%s"
-        cur.execute(sql, (user["id"],))
-        sql = "DELETE FROM user_favorite_food WHERE user_id=%s"
-        cur.execute(sql, (user["id"],))
-        sql = "DELETE FROM user_favorite_music WHERE user_id=%s"
-        cur.execute(sql, (user["id"],))
-        sql = "DELETE FROM user_favorite_season WHERE user_id=%s"
-        cur.execute(sql, (user["id"],))
-        sql = "DELETE FROM user_past_job WHERE user_id=%s"
-        cur.execute(sql, (user["id"],))
-        sql = "DELETE FROM user_pet WHERE user_id=%s"
-        cur.execute(sql, (user["id"],))
-        sql = "DELETE FROM user WHERE id=%s"
-        cur.execute(sql, (user["id"],))
-        mysql.connection.commit()
-        
-
-    # 주 보호자에 대한 회원 탈퇴일떄 주 보호자에 연결된 사용자를 모두 제거한 후
-    if nok_id:
-        # 주 보호자 데이터 제거
-        sql = "DELETE FROM main_nok WHERE id=%s"
-        cur.execute(sql, (nid,))
-        mysql.connection.commit()
-        cur.close()
-        return jsonify({"result":"success","msg":"main_nok and user deleted"}), 200
-    else:
-        cur.close()
-        return jsonify({"result":"success","msg":"user deleted"}), 200
 
 @user_modify_routes.route("/modify_nok_info", methods=["POST"])
 def modify_nok_info():
@@ -227,11 +180,21 @@ def modify_nok_info():
      # 변경사항을 확정하고 저장
     try:
         db.session.commit()
-        return jsonify({"result": "success", "msg": "nok data modified", "modify_value": modify_data}), 200
+        return jsonify({
+            "result": "success", 
+            "msg": "nok data modified", 
+            "err_code": 0,
+            "modify_value": modify_data
+        }), 200
+    # Error: SQL Commit 에러
     except Exception as e:
         print(f"Error during commit: {e}")
         db.session.rollback()
-        return jsonify({"result": "error", "msg": "Error during commit"}), 500
+        return jsonify({
+            "result": "error", 
+            "msg": "Error during commit",
+            "err_code": 100
+        }), 500
 
 @user_modify_routes.route("/modify_user_info", methods=["POST"])
 def modify_user_info():
