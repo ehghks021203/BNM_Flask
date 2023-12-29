@@ -32,7 +32,7 @@ def user_delete():
         return jsonify({
             "result": "error", 
             "msg": "missing json in request",
-            "err_code": 10
+            "err_code": "10"
         }), 400
     
     # 사용자 데이터 받아오기
@@ -44,7 +44,7 @@ def user_delete():
         return jsonify({
             "result": "error", 
             "msg": "missing nok_id or user_id parameter",
-            "err_code": 11
+            "err_code": "11"
         }), 400
 
     # 주 보호자에 대한 회원 탈퇴일 경우
@@ -55,7 +55,7 @@ def user_delete():
             return jsonify({
                 "result": "error", 
                 "msg": f"{nok_id} id does not exist",
-                "err_code": 20
+                "err_code": "20"
             }), 401
         nid = main_nok.id
         # 주 보호자와 연결된 사용자 리스트 생성
@@ -68,7 +68,7 @@ def user_delete():
             return jsonify({
                 "result": "error", 
                 "msg": f"{user_id} id does not exist",
-                "err_code": 20
+                "err_code": "20"
             }), 401
         user_list = [user]
 
@@ -113,7 +113,7 @@ def user_delete():
         return jsonify({
             "result": "success", 
             "msg": "user deleted",
-            "err_code": 0
+            "err_code": "00"
         }), 200
     # Error: SQL Commit 에러
     except Exception as e:
@@ -122,7 +122,7 @@ def user_delete():
         return jsonify({
             "result": "error", 
             "msg": "Error during commit",
-            "err_code": 100
+            "err_code": "100"
         }), 500
     
 
@@ -158,7 +158,19 @@ def modify_nok_info():
     """
     # 데이터 형식이 JSON이 아닐 때
     if not request.is_json:
-        return jsonify({"result": "error", "msg": "missing json in request"}), 400
+        return jsonify({
+            "result": "error", 
+            "msg": "missing json in request",
+            "err_code": "10"
+        }), 400
+    
+    # 파라미터 값이 비어있거나 없을 때
+    if not nok_id:
+        return jsonify({
+            "result": "error", 
+            "msg": "missing nok_id parameter",
+            "err_code": "11"
+        }), 400
     
     # 주 보호자 데이터 받아오기
     nok_id = request.json["nok_id"]
@@ -166,7 +178,11 @@ def modify_nok_info():
     # 주 보호자에 대한 정보 조회
     main_nok = MainNok.query.filter_by(nok_id=nok_id).first()
     if not main_nok:
-        return jsonify({"result": "error", "msg": f"{nok_id} id does not exist"}), 401
+        return jsonify({
+            "result": "error", 
+            "msg": f"{nok_id} id does not exist",
+            "err_code": "20"
+        }), 401
 
     # 주어진 데이터로 주 보호자 정보 수정
     modify_data = []
@@ -183,7 +199,7 @@ def modify_nok_info():
         return jsonify({
             "result": "success", 
             "msg": "nok data modified", 
-            "err_code": 0,
+            "err_code": "00",
             "modify_value": modify_data
         }), 200
     # Error: SQL Commit 에러
@@ -193,7 +209,7 @@ def modify_nok_info():
         return jsonify({
             "result": "error", 
             "msg": "Error during commit",
-            "err_code": 100
+            "err_code": "100"
         }), 500
 
 @user_modify_routes.route("/modify_user_info", methods=["POST"])
@@ -244,7 +260,19 @@ def modify_user_info():
     """
     # 데이터 형식이 JSON이 아닐 때
     if not request.is_json:
-        return jsonify({"result": "error", "msg": "missing json in request"}), 400
+        return jsonify({
+            "result": "error", 
+            "msg": "missing json in request",
+            "err_code": "10"
+        }), 400
+    
+    # 파라미터 값이 비어있거나 없을 때
+    if not user_id:
+        return jsonify({
+            "result": "error", 
+            "msg": "missing user_id parameter",
+            "err_code": "11"
+        }), 400
     
     # 주 보호자 데이터 받아오기
     user_id = request.json["user_id"]
@@ -253,7 +281,11 @@ def modify_user_info():
         # 주 보호자에 대한 정보 조회
         user = User.query.filter_by(user_id=user_id).first()
         if not user:
-            return jsonify({"result": "error", "msg": f"{user_id} id does not exist"}), 401
+            return jsonify({
+                "result": "error", 
+                "msg": f"{user_id} id does not exist",
+                "err_code": "20"
+            }), 401
 
         # 주어진 데이터로 주 보호자 정보 수정
         modify_data = []
@@ -278,9 +310,19 @@ def modify_user_info():
                     db.session.add(new_item)
                 db.session.commit()
             modify_data.append(key)
-        return jsonify({"result": "success", "msg": "user data modified", "modify_value": modify_data}), 200
+        return jsonify({
+            "result": "success", 
+            "msg": "user data modified", 
+            "err_code": "00",
+            "modify_value": modify_data
+        }), 200
+    # Error: SQL Commit 에러
     except Exception as e:
-        print(f"Error during modification: {e}")
+        print(f"Error during commit: {e}")
         db.session.rollback()
-        return jsonify({"result": "error", "msg": "Error during modification"}), 500
+        return jsonify({
+            "result": "error", 
+            "msg": "Error during commit",
+            "err_code": "100"
+        }), 500
     

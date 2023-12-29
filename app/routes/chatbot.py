@@ -7,7 +7,7 @@ from app.models.user import ChatLog, MemoryTestResult
 
 chatbot_routes = Blueprint("chatbot", __name__)
 
-@chatbot_routes.route("chatbot_chat", methods=["POST"])
+@chatbot_routes.route("/chatbot_chat", methods=["POST"])
 def chatbot_chat():
     """챗봇 대화 함수
 
@@ -30,7 +30,7 @@ def chatbot_chat():
         return jsonify({
             "result": "error", 
             "msg": "missing json in request", 
-            "err_code": 10
+            "err_code": "10"
         }), 400
     
     # Error: 파라미터 값이 비어있거나 없음
@@ -40,7 +40,7 @@ def chatbot_chat():
             return jsonify({
                 "result": "error", 
                 "msg": f"missing {field} parameter", 
-                "err_code": 11
+                "err_code": "11"
             }), 400
         
     # 파라미터 받아오기
@@ -54,20 +54,20 @@ def chatbot_chat():
         return jsonify({
             "result": "error", 
             "msg": "user does not exist", 
-            "err_code": 20
+            "err_code": "20"
         }), 401
 
     bot_msg = chatbot.chatbot_chat(user.id, user_msg)
 
     try:
-        new_chat_log_user = ChatLog(user_id=user.id, receiver="user", chat_group_id=user.chat_group_id, text=user_msg)
+        new_chat_log_user = ChatLog(user_id=user.id, receiver="user", chat_group_id=user.last_chat_group, text=user_msg)
         db.session.add(new_chat_log_user)
-        new_chat_log_chatbot = ChatLog(user_id=user.id, receiver="assistant", chat_group_id=user.chat_group_id, text=bot_msg)
+        new_chat_log_chatbot = ChatLog(user_id=user.id, receiver="assistant", chat_group_id=user.last_chat_group, text=bot_msg)
         db.session.add(new_chat_log_chatbot)
         return jsonify({
             "result": "success", 
             "msg": bot_msg,
-            "err_code": 0
+            "err_code": "00"
         }), 200
     # Error: SQL Commit 에러
     except Exception as e:
@@ -76,10 +76,10 @@ def chatbot_chat():
         return jsonify({
             "result": "error", 
             "msg": "Error during commit",
-            "err_code": 100
+            "err_code": "100"
         }), 500
     
-chatbot_routes.route("/chatbot_quiz", methods=["POST"])
+@chatbot_routes.route("/chatbot_quiz", methods=["POST"])
 def chatbot_quiz():
     """챗봇 기억력 테스트 함수
 
@@ -106,7 +106,7 @@ def chatbot_quiz():
         return jsonify({
             "result": "error", 
             "msg": "missing json in request", 
-            "err_code": 10
+            "err_code": "10"
         }), 400
     
     # Error: 파라미터 값이 비어있거나 없음
@@ -116,17 +116,16 @@ def chatbot_quiz():
             return jsonify({
                 "result": "error", 
                 "msg": f"missing {field} parameter", 
-                "err_code": 11
+                "err_code": "11"
             }), 400
         
     # 파라미터 받아오기
     user_id = request.json["user_id"]
-    user_msg = request.json["msg"] if request.json["msg"] != None else ""
-    history = request.json["history"] if request.json["history"] != None else []
+    user_msg = request.json["msg"] if "msg" in request.json else ""
+    history = request.json["history"] if "history" in request.json != None else []
 
     user = User.query.filter_by(user_id=user_id).first()
-
-    # Error: 사용자가 존재하지 않음
+    # Error: 유저가 존재하지 않음
     if not user:
         return jsonify({
             "result": "error", 
@@ -134,7 +133,7 @@ def chatbot_quiz():
             "err_code": 20
         }), 401
     
-    bot_msg, history = chatbot.chatbot_chat(user.id, user_msg, history)
+    bot_msg, history = chatbot.chatbot_quiz(user.id, user_msg, history)
 
     # 문제가 모두 종료되고 챗봇이 결과를 말해줄 때
     try:
@@ -142,17 +141,18 @@ def chatbot_quiz():
             mem_res = history[-1]["content"].split("/")
             memory_test_result = MemoryTestResult(user_id=user.id, correct=int(mem_res[0]), total=int(mem_res[1]))
             db.session.add(memory_test_result)
+            db.session.commit()
             return jsonify({
                 "result": "end", 
                 "msg": bot_msg,
-                "err_code": 0,
+                "err_code": "00",
                 "history": history
             }), 200
         else:
             return jsonify({
                 "result": "success", 
                 "msg": bot_msg,
-                "err_code": 0,
+                "err_code": "00",
                 "history": history
             }), 200
     # Error: SQL Commit 에러
@@ -162,5 +162,5 @@ def chatbot_quiz():
         return jsonify({
             "result": "error", 
             "msg": "Error during commit",
-            "err_code": 100
+            "err_code": "100"
         }), 500

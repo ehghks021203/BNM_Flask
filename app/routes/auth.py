@@ -21,8 +21,8 @@ def login():
             응답 성공 여부 (success, error)
         msg `str`:
             응답 메시지
-        err_code `int`:
-            오류 코드
+        err_code `str`:
+            오류 코드 (API_GUIDE.md 참고)
         user_type `str`:
             로그인 한 유저의 타입 (user 또는 main_nok)
     """
@@ -31,7 +31,7 @@ def login():
         return jsonify({
             "result": "error", 
             "msg": "missing json in request", 
-            "err_code":10
+            "err_code": "10"
         }), 400
     
     # Error: 파라미터 값이 비어있거나 없음
@@ -41,7 +41,7 @@ def login():
             return jsonify({
                 "result": "error", 
                 "msg": f"missing {field} parameter", 
-                "err_code":11
+                "err_code": "11"
             }), 400
         
     # 사용자 데이터 받아오기
@@ -56,7 +56,7 @@ def login():
             return jsonify({
                 "result": "success", 
                 "msg": "correct password", 
-                "err_code": 0, 
+                "err_code": "00", 
                 "user_type": "user"
             }), 200
         # Error: 비밀번호 불일치
@@ -64,8 +64,8 @@ def login():
             return jsonify({
                 "result": "error", 
                 "msg": "incorrect password", 
-                "err_code":22, "user_type":
-                "user"
+                "err_code": "22", 
+                "user_type": "user"
             }), 401
     else:
         main_nok = MainNok.query.filter_by(nok_id=user_id).first()
@@ -74,7 +74,7 @@ def login():
                 return jsonify({
                     "result": "success", 
                     "msg": "correct password", 
-                    "err_code":0, 
+                    "err_code": "00", 
                     "user_type": "main_nok"
                 }), 200
             # Error: 비밀번호 불일치
@@ -82,14 +82,14 @@ def login():
                 return jsonify({
                     "result": "error",
                     "msg": "incorrect password", 
-                    "err_code":22, 
+                    "err_code": "22", 
                     "user_type": "main_nok"
                 }), 401
     # Error: 사용자가 존재하지 않음
     return jsonify({
         "result": "error", 
         "msg": "user does not exist", 
-        "err_code":20
+        "err_code": "20"
     }), 401
 
 @auth_routes.route("/nok_register", methods=["POST"])
@@ -117,13 +117,15 @@ def nok_register():
             응답 성공 여부 (success, error)
         msg `str`:
             응답 메시지
+        err_code `str`:
+            오류 코드 (API_GUIDE.md 참고)
     """
     # Error: 데이터 형식이 JSON이 아님
     if not request.is_json:
         return jsonify({
             "result": "error", 
             "msg": "missing json in request", 
-            "err_code":10
+            "err_code": "10"
         }), 400
     
     # Error: 파라미터 값이 비어있거나 없음
@@ -133,7 +135,7 @@ def nok_register():
             return jsonify({
                 "result": "error", 
                 "msg": f"missing {field} parameter", 
-                "err_code":11
+                "err_code": "11"
             }), 400
 
     # 주 보호자 데이터 받아오기    
@@ -143,7 +145,6 @@ def nok_register():
     nok_birthday = request.json["birthday"]
     nok_gender = request.json["gender"]
     nok_address = request.json["address"]
-    nok_relation = request.json["relation"]
     nok_tell = request.json["tell"]
 
     # Error: 이미 존재하는 아이디
@@ -151,7 +152,7 @@ def nok_register():
         return jsonify({
             "result": "error", 
             "msg": f"{nok_id} id already exists",
-            "err_code":21
+            "err_code": "21"
         }), 401
 
     # 비밀번호 암호화
@@ -166,7 +167,7 @@ def nok_register():
         return jsonify({
             "result":"success", 
             "msg":"main nok register",
-            "err_code":0
+            "err_code": "00"
         }), 200
     # Error: SQL Commit 에러
     except Exception as e:
@@ -175,7 +176,7 @@ def nok_register():
         return jsonify({
             "result": "error", 
             "msg": "Error during commit",
-            "err_code":100
+            "err_code": "100"
         }), 500    
 
 @auth_routes.route("/user_register", methods=["POST"])
@@ -209,13 +210,15 @@ def user_register():
             응답 성공 여부 (success, error)
         msg `str`:
             응답 메시지
+        err_code `str`:
+            오류 코드 (API_GUIDE.md 참고)
     """
     # Error: 데이터 형식이 JSON이 아님
     if not request.is_json:
         return jsonify({
             "result": "error", 
             "msg": "missing json in request",
-            "err_code":10
+            "err_code": "10"
         }), 400
     
     # Error: 파라미터 값이 비어있거나 없음
@@ -227,7 +230,7 @@ def user_register():
             return jsonify({
                 "result": "error", 
                 "msg": f"missing {field} parameter",
-                "err_code":11
+                "err_code": "11"
             }), 400
         
     # 사용자 데이터 받아오기
@@ -250,7 +253,7 @@ def user_register():
         return jsonify({
             "result": "error", 
             "msg": f"{nok_id} id does not exits",
-            "err_code":20
+            "err_code": "20"
         }), 401
     nid = main_nok.id
     print(nid)
@@ -260,7 +263,7 @@ def user_register():
         return jsonify({
             "result": "error", 
             "msg": f"{user_id} id already exists",
-            "err_code":21
+            "err_code": "21"
         }), 401
 
     # 비밀번호 암호화
@@ -276,7 +279,7 @@ def user_register():
         return jsonify({
             "result":"success", 
             "msg":"user register",
-            "err_code":0
+            "err_code": "00"
         }), 200
     # Error: SQL Commit 에러
     except Exception as e:
@@ -285,5 +288,63 @@ def user_register():
         return jsonify({
             "result": "error", 
             "msg": "Error during commit",
-            "err_code":100
+            "err_code": "100"
         }), 500
+
+@auth_routes.route("/check_id_duplicate", methods=["POST"])
+def check_id_duplicate():
+    """사용자 아이디 중복 확인 함수
+
+    Params:
+        user_id `str`:
+            사용자의 아이디 (중복 불가)
+
+    Returns:
+        result `str`:
+            응답 성공 여부 (success, error)
+        msg `str`:
+            응답 메시지
+        err_code `str`:
+            오류 코드 (API_GUIDE.md 참고)
+    """
+    # Error: 데이터 형식이 JSON이 아님
+    if not request.is_json:
+        return jsonify({
+            "result": "error", 
+            "msg": "missing json in request",
+            "err_code": "10"
+        }), 400
+    
+    # Error: 파라미터 값이 비어있거나 없음
+    required_fields = ["user_id"]
+    for field in required_fields:
+        if field not in request.json or not request.json[field]:
+            print(f"missing {field} parameter")
+            return jsonify({
+                "result": "error", 
+                "msg": f"missing {field} parameter",
+                "err_code": "11"
+            }), 400
+        
+    user_id = request.json["user_id"]
+    print(user_id)
+    # Error: 이미 존재하는 아이디
+    if MainNok.query.filter_by(nok_id=user_id).count() > 0:
+        return jsonify({
+            "result": "error", 
+            "msg": f"{user_id} id already exists",
+            "err_code": "21"
+        }), 401
+    # Error: 이미 존재하는 아이디
+    elif User.query.filter_by(user_id=user_id).count() > 0:
+        return jsonify({
+            "result": "error", 
+            "msg": f"{user_id} id already exists",
+            "err_code": "21"
+        }), 401
+    else:
+        return jsonify({
+            "result": "success", 
+            "msg": f"{user_id} is available.",
+            "err_code": "00"
+        }), 200

@@ -1,15 +1,16 @@
 from flask import Blueprint, jsonify, request, render_template
 from config import BASE_DIR
-import os, datetime
+import os
+from datetime import datetime
 
-page_routes = Blueprint("auth", __name__)
+page_routes = Blueprint("page", __name__)
 
 @page_routes.route("/notion_list")
 def notion_list():
     """공지사항 리스트 페이지
     """
-    COMMON_PATH = BASE_DIR + "/templates/notions"
-    PIN_PATH = BASE_DIR + "/templates/notions/pin"
+    COMMON_PATH = BASE_DIR + "/app/templates/notions"
+    PIN_PATH = BASE_DIR + "/app/templates/notions/pin"
     pin_items = []
     common_items = []
     common_list = os.listdir(COMMON_PATH)
