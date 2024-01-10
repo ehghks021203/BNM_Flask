@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
 from app import db, bcrypt
 from datetime import datetime
+from config import ChronicIllness
 
 from app.models.user import User, MainNok
 
@@ -244,7 +245,13 @@ def user_register():
     user_relation = request.json["relation"]
     user_address = request.json["address"]
     user_blood_type = request.json["blood_type"]
-    user_chronic_illness = request.json["chronic_illness"].encode('utf-8') if request.json["chronic_illness"] else None
+    user_chronic_illness = request.json["chronic_illness"] if request.json["chronic_illness"] else ""
+
+    # 지병 데이터 포멧팅
+    formatted_user_chronic_illness = ""
+    for c in user_chronic_illness.split(","):
+        formatted_user_chronic_illness += ChronicIllness.chronic_illness_data[c] + ","
+    formatted_user_chronic_illness = formatted_user_chronic_illness[:-1].encode('utf-8')
 
     main_nok = MainNok.query.filter_by(nok_id=nok_id).first()
 
@@ -269,11 +276,13 @@ def user_register():
     # 비밀번호 암호화
     hashed_pw = bcrypt.generate_password_hash(user_pw).decode('utf-8')
 
+    
+
     # 회원정보 main_nok 테이블에 삽입
     try:
         new_user = User(main_nok_id=nid, user_id=user_id, user_pw=hashed_pw, name=user_name, birthday=user_birthday,
                     gender=user_gender, relation=user_relation, address=user_address, blood_type=user_blood_type, 
-                    chronic_illness=user_chronic_illness)
+                    chronic_illness=formatted_user_chronic_illness)
         db.session.add(new_user)
         db.session.commit()
         return jsonify({

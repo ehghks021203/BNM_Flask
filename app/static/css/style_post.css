@@ -1,0 +1,37 @@
+body {
+    margin: 0;
+    padding: 25px;
+    margin-bottom: 30px;
+    text-align: justify;
+}
+
+
+#box{
+    margin:0 ;
+    padding: 10px;
+    border:0 ; 
+    border-radius:8px ; 
+    background-color:rgb(255, 255, 255);
+}
+
+#box_title{
+    margin-bottom:10px ;
+    padding: 10px;
+    border:0 ; 
+    border-radius:8px ; 
+    background-color:#ffed64;
+
+}
+
+#square{
+    padding: 20px;
+    border-style: solid;
+    border: width 2px;
+    border-color:black;
+
+}
+
+.text{
+    float: left;
+    padding:20px;
+}

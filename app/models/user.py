@@ -17,6 +17,7 @@ class User(db.Model):
     details = db.Column(db.String(500), nullable=True)
     last_chat_group = db.Column(db.Integer, nullable=False, default=0)
     is_first = db.Column(db.Boolean, nullable=False, default=True)
+    is_exercise_first = db.Column(db.Boolean, nullable=False, default=True)
 
     def __repr__(self):
         return f"<User {self.user_id}>"
@@ -94,3 +95,13 @@ class MemoryTestResult(db.Model):
 
     def __repr__(self):
         return f"<MemoryTestResult {self.id}>"
+    
+
+class LevelTest(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    up_level = db.Column(db.Integer, nullable=False, default=0)
+    down_level = db.Column(db.Integer, nullable=False, default=0)
+
+    def __repr__(self):
+        return f"<LevelTest {self.id}>"

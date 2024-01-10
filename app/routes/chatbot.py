@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from app import db
-import chatbot
+import chatbot_func
 
 from app.models.user import User
 from app.models.user import ChatLog, MemoryTestResult
@@ -24,6 +24,8 @@ def chatbot_chat():
             응답 성공 여부 (success, error)
         msg `str`:
             응답 메시지
+        err_code `str`:
+            오류 코드 (API_GUIDE.md 참고)
     """
     # Error: 데이터 형식이 JSON이 아님
     if not request.is_json:
@@ -57,7 +59,7 @@ def chatbot_chat():
             "err_code": "20"
         }), 401
 
-    bot_msg = chatbot.chatbot_chat(user.id, user_msg)
+    bot_msg = chatbot_func.chatbot_chat(user.id, user_msg)
 
     try:
         new_chat_log_user = ChatLog(user_id=user.id, receiver="user", chat_group_id=user.last_chat_group, text=user_msg)
@@ -78,7 +80,7 @@ def chatbot_chat():
             "msg": "Error during commit",
             "err_code": "100"
         }), 500
-    
+
 @chatbot_routes.route("/chatbot_quiz", methods=["POST"])
 def chatbot_quiz():
     """챗봇 기억력 테스트 함수
@@ -98,8 +100,10 @@ def chatbot_quiz():
             응답 성공 여부 (success, error)
         msg `str`:
             응답 메시지
+        err_code `str`:
+            오류 코드 (API_GUIDE.md 참고)
         history `list`:
-            
+            퀴즈 히스토리
     """
     # Error: 데이터 형식이 JSON이 아님
     if not request.is_json:
@@ -130,10 +134,10 @@ def chatbot_quiz():
         return jsonify({
             "result": "error", 
             "msg": "user does not exist", 
-            "err_code": 20
+            "err_code": "20"
         }), 401
     
-    bot_msg, history = chatbot.chatbot_quiz(user.id, user_msg, history)
+    bot_msg, history = chatbot_func.chatbot_quiz(user.id, user_msg, history)
 
     # 문제가 모두 종료되고 챗봇이 결과를 말해줄 때
     try:

@@ -5,7 +5,7 @@ from datetime import datetime
 
 page_routes = Blueprint("page", __name__)
 
-@page_routes.route("/notion_list")
+@page_routes.route("/notion_list", methods=["GET"])
 def notion_list():
     """공지사항 리스트 페이지
     """
@@ -48,3 +48,27 @@ def show_notion():
         return render_template(f"notions/{file_name}.html")
     else:
         return render_template(f"notions/{locate}/{file_name}.html")
+
+@page_routes.route("/rule", methods=["GET"])
+def show_rule():
+    """이용약관
+    """
+    return render_template("rule.html")
+
+@page_routes.route("/personalinfo", methods=["GET"])
+def show_info():
+    """보호방침
+    """
+    return render_template("personalinfo.html")
+
+@page_routes.route("/question", methods=["GET"])
+def show_quest():
+    """질문
+    """
+    return render_template("question.html")
+
+@page_routes.route("/trainer", methods=["GET"])
+def show_train():
+    """강사 
+    """
+    return render_template("trainer.html")

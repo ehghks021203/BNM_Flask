@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content=""IE=edge" />
+        <title>강사 프로필</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style_post.css') }}" />
+        <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+        <style>
+            /* 컨테이너를 감싸는 전체 컨테이너 */
+            .main-container {
+                display: flex;
+                flex-direction: column; /* 세로로 배치 */
+            }
+              /* 첫 번째 덩어리 컨테이너 */
+            .block1-con {
+                display: flex;
+            }
+            /* 두 번째 덩어리 컨테이너 */
+            .block2-con {
+                display: flex;
+                margin-top: 20px; /* 첫 번째 덩어리와 간격 조절 */
+            }
+
+        </style>
+    </head>
+    
+    <body>
+        <h1>강사 프로필</h1>
+        <span>'몸과마음' 제작에 도움을 주신 전문 운동 강사 분들입니다. </span>
+        <br>
+        <span>추가적인 전문 운동 지도가 필요하실 시, 아래의 연락처로 연락주시면 상담 도와드리겠습니다.</span>
+        <hr>
+        <br>
+            <div id = box_title>
+        <h2>이정현 강사</h2>
+            </div>
+        <div class = block1-con>
+        <img src="{{ url_for('static', filename='images/프로필사진.jpg') }}"style="max-width: 25%; height: 25%; margin-top: 40px; margin-left: 10px">
+        <br> 
+        <div class = text>
+            <h3>학력</h3>
+            <span>성균관대학교 스포츠과학과</span>
+            <br>
+            <br>
+            <h3>경력 및 자격</h3>
+            <span>생활스포츠지도사 2급</span>
+            <br>
+            <span>SFG(케틀벨지도사) Lv1</span>
+            <br>
+            <span>FITT Mes(체력측정평가사)</span>
+            <br>
+         </div>
+        </div> 
+            <h3>연락처</h3>
+            <span>옵티멀바디</span>
+            <br>
+            <span>02-2135-9910</span>
+            <br>
+            <span>강서구 마곡중앙로 두산더랜드파크 B동 313호</span>
+        <br>
+        <br>
+        <hr>
+        
+            <div id = box_title>
+                <h2>이지현 강사</h2>
+            </div>
+            <div class = block2-con>
+            <img src="{{ url_for('static', filename='images/이지현_프로필.jpg') }}"style="max-width: 25%; height: 25%; margin-top:40px; margin-left: 10px;">
+            <br>
+            <div class = text>
+                <h3>경력</h3>
+                <span>전 서울정부청사 건강도우미</span>
+                <br>
+                <span>전 화이자제약 전담트레이너</span>
+                <br>
+                <span>전 현대롤링힐스 트레이너</span>
+                <br>
+                <span>현 부천대학교 재활스포츠과 겸임교수</span>
+                <br>
+                <span>현 옵티멀바디 대표</span>
+                <br>
+                
+            </div>
+        </div>
+        <h3>연락처</h3>
+                <span>옵티멀바디</span>
+                <br>
+                <span>02-2135-9910</span>
+                <br>
+                <span>강서구 마곡중앙로 두산더랜드파크 B동 313호</span>
+    </body>
+</html>
